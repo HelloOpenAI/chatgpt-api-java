@@ -2,7 +2,9 @@ package io.github.hello.openai;
 
 import io.github.hello.openai.http.HttpClientSupport;
 import io.github.hello.openai.http.RetrofitHttpClient;
-import retrofit2.Retrofit;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Response;
 import retrofit2.http.GET;
 
 import java.io.IOException;
@@ -23,16 +25,17 @@ public class Model {
 
     public String list() throws IOException {
         if (httpClient instanceof RetrofitHttpClient) {
-            Retrofit retrofit = ((RetrofitHttpClient) httpClient).getRetrofit();
-            return retrofit.create(RetrofitApi.class).list();
+            RetrofitHttpClient retrofit = (RetrofitHttpClient) httpClient;
+            Response<ResponseBody> response = retrofit.getRetrofit().create(RetrofitApi.class).list().execute();
+            return retrofit.readAsString(response);
         } else {
             return httpClient.get(MODEL_LIST_API);
         }
     }
 
     private interface RetrofitApi {
-        @GET("/models")
-        String list();
+        @GET("models")
+        Call<ResponseBody> list();
     }
 
 }

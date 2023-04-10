@@ -1,9 +1,13 @@
 package io.github.hello.openai.http;
 
+import io.github.hello.openai.exception.HttpNoResponseException;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.ResponseBody;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.util.Map;
@@ -49,6 +53,17 @@ public class RetrofitHttpClient implements HttpClientSupport {
 
     public Retrofit getRetrofit() {
         return retrofit.build();
+    }
+
+    public String readAsString(Response<ResponseBody> response) throws IOException {
+        try (ResponseBody body = response.body()) {
+            if (body == null) {
+                final String url = retrofit.build().baseUrl().toString();
+                final String error = String.format("The request [%s] has returned an empty response body", url);
+                throw new HttpNoResponseException(error);
+            }
+            return body.string();
+        }
     }
 
 }
