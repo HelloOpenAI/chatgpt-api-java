@@ -55,12 +55,10 @@ public class RetrofitHttpClient implements HttpClientSupport {
         return retrofit.build();
     }
 
-    public String readAsString(Response<ResponseBody> response) throws IOException {
+    public static String readAsString(Response<ResponseBody> response) throws IOException {
         try (ResponseBody body = response.body()) {
             if (body == null) {
-                final String url = retrofit.build().baseUrl().toString();
-                final String error = String.format("The request [%s] has returned an empty response body", url);
-                throw new HttpNoResponseException(error);
+                throw new HttpNoResponseException("The response body is null");
             }
             return body.string();
         }
