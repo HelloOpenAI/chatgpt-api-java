@@ -6,6 +6,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.util.Map;
@@ -18,18 +19,17 @@ public class SpringRestTemplate implements HttpClientSupport {
 
     private final RestTemplate rest;
 
-    private HttpEntity<String> entity;
+    private final HttpHeaders headers;
 
     public SpringRestTemplate() {
         System.setProperty("java.net.preferIPv4Stack", Boolean.TRUE.toString());
         rest = new RestTemplate();
+        headers = new HttpHeaders();
     }
 
     @Override
     public void addHeaders(Map<String, String> headers) {
-        HttpHeaders httpHeaders = new HttpHeaders();
-        headers.forEach(httpHeaders::add);
-        entity = new HttpEntity<>(httpHeaders);
+        headers.forEach(this.headers::add);
     }
 
     @Override
@@ -42,7 +42,14 @@ public class SpringRestTemplate implements HttpClientSupport {
 
     @Override
     public String get(String url) {
+        HttpEntity<String> entity = new HttpEntity<>(headers);
         return rest.exchange(url, HttpMethod.GET, entity, String.class).getBody();
+    }
+
+    @Override
+    public String post(String url, String jsonPayload) {
+        HttpEntity<String> entity = new HttpEntity<>(jsonPayload, headers);
+        return rest.exchange(url, HttpMethod.POST, entity, String.class).getBody();
     }
 
 }

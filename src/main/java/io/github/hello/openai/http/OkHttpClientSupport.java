@@ -1,10 +1,7 @@
 package io.github.hello.openai.http;
 
 import io.github.hello.openai.exception.HttpNoResponseException;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
+import okhttp3.*;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -48,6 +45,22 @@ public class OkHttpClientSupport implements HttpClientSupport {
                 throw new HttpNoResponseException(error);
             }
             return body.string();
+        }
+    }
+
+    @Override
+    public String post(String url, String jsonPayload) throws IOException {
+        OkHttpClient client = okHttp.build();
+        MediaType mediaType = MediaType.parse(HttpHeader.APPLICATION_JSON.getValue());
+        RequestBody requestBody = RequestBody.create(jsonPayload, mediaType);
+        Request realRequest = request.url(url).post(requestBody).build();
+        try (Response response = client.newCall(realRequest).execute()) {
+            ResponseBody responseBody = response.body();
+            if (responseBody == null) {
+                final String error = String.format("The request [%s] has returned an empty response body", url);
+                throw new HttpNoResponseException(error);
+            }
+            return responseBody.string();
         }
     }
 

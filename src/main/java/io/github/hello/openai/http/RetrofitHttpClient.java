@@ -51,6 +51,11 @@ public class RetrofitHttpClient implements HttpClientSupport {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public String post(String url, String jsonPayload) {
+        throw new UnsupportedOperationException();
+    }
+
     public Retrofit getRetrofit() {
         return retrofit.build();
     }

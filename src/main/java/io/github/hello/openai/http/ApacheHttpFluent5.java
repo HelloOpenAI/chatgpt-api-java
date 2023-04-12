@@ -36,4 +36,14 @@ public class ApacheHttpFluent5 implements HttpClientSupport {
         return response.returnContent().asString();
     }
 
+    @Override
+    public String post(String url, String jsonPayload) throws IOException {
+        Request request = Request.post(url);
+        headers.forEach(request::addHeader);
+        request.viaProxy(proxy);
+        request.bodyByteArray(jsonPayload.getBytes());
+        Response response = request.execute();
+        return response.returnContent().asString();
+    }
+
 }

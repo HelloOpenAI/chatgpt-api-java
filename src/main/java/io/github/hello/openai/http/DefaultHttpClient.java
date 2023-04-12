@@ -2,10 +2,7 @@ package io.github.hello.openai.http;
 
 import io.github.hello.openai.exception.HttpNoResponseException;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.*;
 import java.util.Map;
 
@@ -33,18 +30,43 @@ public class DefaultHttpClient implements HttpClientSupport {
 
     @Override
     public String get(String url) throws IOException {
-        // send get request
         HttpURLConnection connection = openConnection(url);
         connection.setRequestMethod("GET");
         connection.connect();
+        return readResponseFrom(connection, url);
+    }
 
-        // read the response
+    @Override
+    public String post(String url, String jsonPayload) throws IOException {
+        HttpURLConnection connection = openConnection(url);
+        connection.setRequestMethod("POST");
+        connection.connect();
+
+        // Write JSON payload to the request body
+        try (DataOutputStream param = new DataOutputStream(connection.getOutputStream())) {
+            param.writeBytes(jsonPayload);
+            param.flush();
+        }
+
+        return readResponseFrom(connection, url);
+    }
+
+    private HttpURLConnection openConnection(String urlStr) throws IOException {
+        URL url = new URL(urlStr);
+        URLConnection urlConnection = proxy == null ? url.openConnection() : url.openConnection(proxy);
+        HttpURLConnection connection = (HttpURLConnection) urlConnection;
+        // Add HTTP headers
+        headers.forEach(connection::setRequestProperty);
+        return connection;
+    }
+
+    private String readResponseFrom(HttpURLConnection connection, String url) throws IOException {
         final int responseCode = connection.getResponseCode();
         if (responseCode == OK) {
             InputStream inputStream = connection.getInputStream();
             InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-            StringBuffer response = new StringBuffer();
+            StringBuilder response = new StringBuilder();
             String line;
             while ((line = bufferedReader.readLine()) != null) {
                 response.append(line);
@@ -57,15 +79,6 @@ public class DefaultHttpClient implements HttpClientSupport {
             final String error = String.format("The request [%s] has returned an empty response body", url);
             throw new HttpNoResponseException(error);
         }
-    }
-
-    private HttpURLConnection openConnection(String urlStr) throws IOException {
-        URL url = new URL(urlStr);
-        URLConnection urlConnection = proxy == null ? url.openConnection() : url.openConnection(proxy);
-        HttpURLConnection connection = (HttpURLConnection) urlConnection;
-        // add http headers
-        headers.forEach(connection::setRequestProperty);
-        return connection;
     }
 
 }

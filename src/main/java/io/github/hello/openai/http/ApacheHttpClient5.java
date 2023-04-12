@@ -3,8 +3,10 @@ package io.github.hello.openai.http;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 
 import java.io.IOException;
 import java.util.Map;
@@ -40,6 +42,15 @@ public class ApacheHttpClient5 implements HttpClientSupport {
         headers.forEach(httpGet::addHeader);
         try (CloseableHttpClient httpClient = httpClientBuilder.build()) {
             return httpClient.execute(httpGet, response -> EntityUtils.toString(response.getEntity()));
+        }
+    }
+
+    @Override
+    public String post(String url, String jsonPayload) throws IOException {
+        ClassicHttpRequest request = ClassicRequestBuilder.post().setUri(url).setEntity(jsonPayload).build();
+        headers.forEach(request::addHeader);
+        try (CloseableHttpClient httpClient = httpClientBuilder.build()) {
+            return httpClient.execute(request, response -> EntityUtils.toString(response.getEntity()));
         }
     }
 

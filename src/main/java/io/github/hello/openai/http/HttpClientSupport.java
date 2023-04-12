@@ -15,4 +15,5 @@ public interface HttpClientSupport {
 
     String get(String url) throws IOException;
 
+    String post(String url, String jsonPayload) throws IOException;
 }
