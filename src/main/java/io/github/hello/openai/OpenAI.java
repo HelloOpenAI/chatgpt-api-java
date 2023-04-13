@@ -59,4 +59,8 @@ public class OpenAI {
         return new Model(httpClient);
     }
 
+    public TextCompletion textCompletion() {
+        return new TextCompletion(httpClient);
+    }
+
 }

@@ -40,6 +40,7 @@ public class DefaultHttpClient implements HttpClientSupport {
     public String post(String url, String jsonPayload) throws IOException {
         HttpURLConnection connection = openConnection(url);
         connection.setRequestMethod("POST");
+        connection.setDoOutput(true);
         connection.connect();
 
         // Write JSON payload to the request body

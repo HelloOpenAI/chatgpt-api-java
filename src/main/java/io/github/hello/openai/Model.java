@@ -14,25 +14,21 @@ import java.io.IOException;
  * @author codeboyzhou <imzhouchen@gmail.com>
  * @since 0.1.0
  */
-public class Model {
-
-    private final HttpClientSupport httpClient;
+public class Model extends ApiRequest {
 
     private RetrofitApi retrofitApi;
 
-    private static final String MODEL_LIST_API = "https://api.openai.com/v1/models";
-
     public Model(HttpClientSupport httpClient) {
-        this.httpClient = httpClient;
-        if (httpClient instanceof RetrofitHttpClient) {
-            RetrofitHttpClient retrofit = (RetrofitHttpClient) httpClient;
-            retrofitApi = retrofit.getRetrofit().create(RetrofitApi.class);
+        super(httpClient);
+        if (retrofit != null) {
+            retrofitApi = retrofit.create(RetrofitApi.class);
         }
     }
 
     public String list() throws IOException {
         if (retrofitApi == null) {
-            return httpClient.get(MODEL_LIST_API);
+            final String url = baseUrl + "/models";
+            return httpClient.get(url);
         } else {
             Response<ResponseBody> response = retrofitApi.list().execute();
             return RetrofitHttpClient.readAsString(response);
@@ -41,7 +37,8 @@ public class Model {
 
     public String retrieve(String modelName) throws IOException {
         if (retrofitApi == null) {
-            return httpClient.get(MODEL_LIST_API + "/" + modelName);
+            final String url = baseUrl + "/models/" + modelName;
+            return httpClient.get(url);
         } else {
             Response<ResponseBody> response = retrofitApi.retrieve(modelName).execute();
             return RetrofitHttpClient.readAsString(response);
