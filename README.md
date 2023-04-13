@@ -4,4 +4,5 @@ Retrofit, Spring RestTemplate, Apache HttpClient5 (including Fluent), and JDK bu
 
 # Supported APIs
 - [Models](https://platform.openai.com/docs/api-reference/models)
+- [Text Completions](https://platform.openai.com/docs/api-reference/completions)
 - Others are in progress...
